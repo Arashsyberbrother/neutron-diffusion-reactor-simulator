@@ -135,13 +135,13 @@ At any material interface without an infinitesimal singular surface source, cons
 
    Equating the net current across the interface:
    $$J(x_{\text{int}}^-) = J(x_{\text{int}}^+)$$
-   $$-D_{\text{left}} \left.\frac{d\phi}{dx}\right|^- = -D_{\text{right}} \left.\frac{d\phi}{dx}\right|^+$$
+   $$-D_{\text{left}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^-} = -D_{\text{right}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^+}$$
 
    or equivalently:
-   $$D_{\text{left}} \left.\frac{d\phi}{dx}\right|^- = D_{\text{right}} \left.\frac{d\phi}{dx}\right|^+$$
+   $$D_{\text{left}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^-} = D_{\text{right}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^+}$$
 
 Because $D_{\text{left}} \ne D_{\text{right}}$, the spatial derivative of the flux is discontinuous across the interface:
-$$\frac{\left.\frac{d\phi}{dx}\right|^+}{\left.\frac{d\phi}{dx}\right|^-} = \frac{D_{\text{left}}}{D_{\text{right}}}$$
+$$\frac{\left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^+}}{\left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^-}} = \frac{D_{\text{left}}}{D_{\text{right}}}$$
 
 ### 5.2 Reflector Savings Physics
 

@@ -155,7 +155,7 @@ $\mathbf{A}$ satisfies:
 1. **Symmetry**: $\mathbf{A} = \mathbf{A}^T$.
 2. **Strict Diagonal Dominance**: $|A_{i,i}| = \frac{2D}{\Delta x^2} + \Sigma_a > \sum_{j \ne i} |A_{i,j}| = \frac{2D}{\Delta x^2}$ for $\Sigma_a > 0$.
 3. **Positive Definiteness**: All eigenvalues are strictly positive.
-4. **M-Matrix Property & Inverse Positivity**: Because $\mathbf{A}$ has positive diagonal elements, non-positive off-diagonals, and strict diagonal dominance for $\Sigma_a > 0$, it is a non-singular M-matrix with $\mathbf{A}^{-1} \ge 0$, ensuring a physically consistent non-negative flux response to any non-negative source. In the generalized eigenvalue problem, Perron-Frobenius theory applies to the non-negative iteration operator $\mathbf{A}^{-1}\mathbf{F}$, guaranteeing a unique strictly positive dominant eigenvalue ($k_{\text{eff}}$) and a non-negative fundamental eigenvector.
+4. **M-Matrix Property & Inverse Positivity**: The discretized diffusion-loss operator $\mathbf{A}$ has M-matrix properties under the stated assumptions (positive diagonal entries, non-positive off-diagonals, and strict diagonal dominance for $\Sigma_a > 0$), which support a non-negative response to a non-negative source ($\mathbf{A}^{-1} \ge 0$). Perron-Frobenius theory is relevant separately to the dominant eigenvalue/eigenvector structure of the non-negative multiplication operator $\mathbf{A}^{-1}\mathbf{F}$, guaranteeing a unique, strictly positive dominant eigenvalue ($k_{\text{eff}}$) and a non-negative fundamental eigenvector.
 
 ### The Thomas Algorithm (TDMA)
 Rather than using general matrix factorization ($\mathcal{O}(N^3)$), the tridiagonal fixed-source equation $\mathbf{A} \boldsymbol{\phi} = \mathbf{s}$ is solved using the Thomas algorithm in $\mathcal{O}(N)$ operations. Due to strict diagonal dominance, elimination without pivoting is unconditionally stable.
@@ -315,9 +315,9 @@ Across any physical material boundary $x_{\text{int}}$ without localized delta-f
 2. **Neutron Current Continuity**:
    $$J(x_{\text{int}}^-) = J(x_{\text{int}}^+)$$
    where with $J = -D \frac{d\phi}{dx}$:
-   $$-D_{\text{left}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^-} = -D_{\text{right}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}+}$$
+   $$-D_{\text{left}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^-} = -D_{\text{right}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^+}$$
    or equivalently:
-   $$D_{\text{left}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^-} = D_{\text{right}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}+}$$
+   $$D_{\text{left}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^-} = D_{\text{right}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^+}$$
 
 In our numerical verification, these jump conditions are evaluated with rigorous numerical tolerances:
 - $\Delta \phi_{\text{int}} = |\phi(x_{\text{int}}^+) - \phi(x_{\text{int}}^-)| \le 1.52 \times 10^{-4}$ (continuous across grid cells)
@@ -473,7 +473,7 @@ neutron-diffusion-reactor-simulator/
 │       ├── reflector_study.py         # [V2] Reflector savings, critical thickness, parameter sweeps
 │       └── cli.py              # Command-line interface entry points
 │
-├── tests/                      # Automated test suite (44 tests, 100% pass rate)
+├── tests/                      # Automated test suite (45 tests, 100% pass rate)
 │   ├── __init__.py
 │   ├── test_analytics.py       # Exact analytical benchmark tests
 │   ├── test_mesh.py            # Mesh spacing and quadrature integration tests
@@ -507,7 +507,7 @@ Clone the repository and install dependencies:
 
 ```bash
 # Clone the repository
-git clone https://github.com/computational-nuclear/neutron-diffusion-reactor-simulator.git
+git clone https://github.com/Arashsyberbrother/neutron-diffusion-reactor-simulator.git
 cd neutron-diffusion-reactor-simulator
 
 # Install dependencies and package in editable mode

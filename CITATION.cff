@@ -6,7 +6,7 @@ authors:
 version: 0.1.0
 date-released: 2026-09-07
 license: MIT
-repository-code: "https://github.com/computational-nuclear/neutron-diffusion-reactor-simulator"
+repository-code: "https://github.com/Arashsyberbrother/neutron-diffusion-reactor-simulator"
 keywords:
   - "nuclear engineering"
   - "reactor physics"
