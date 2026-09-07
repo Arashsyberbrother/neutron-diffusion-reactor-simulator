@@ -155,7 +155,7 @@ $\mathbf{A}$ satisfies:
 1. **Symmetry**: $\mathbf{A} = \mathbf{A}^T$.
 2. **Strict Diagonal Dominance**: $|A_{i,i}| = \frac{2D}{\Delta x^2} + \Sigma_a > \sum_{j \ne i} |A_{i,j}| = \frac{2D}{\Delta x^2}$ for $\Sigma_a > 0$.
 3. **Positive Definiteness**: All eigenvalues are strictly positive.
-4. **M-Matrix Property**: Guarantees that any positive fission source yields a strictly non-negative flux vector (Perron-Frobenius theorem).
+4. **M-Matrix Property & Inverse Positivity**: Because $\mathbf{A}$ has positive diagonal elements, non-positive off-diagonals, and strict diagonal dominance for $\Sigma_a > 0$, it is a non-singular M-matrix with $\mathbf{A}^{-1} \ge 0$, ensuring a physically consistent non-negative flux response to any non-negative source. In the generalized eigenvalue problem, Perron-Frobenius theory applies to the non-negative iteration operator $\mathbf{A}^{-1}\mathbf{F}$, guaranteeing a unique strictly positive dominant eigenvalue ($k_{\text{eff}}$) and a non-negative fundamental eigenvector.
 
 ### The Thomas Algorithm (TDMA)
 Rather than using general matrix factorization ($\mathcal{O}(N^3)$), the tridiagonal fixed-source equation $\mathbf{A} \boldsymbol{\phi} = \mathbf{s}$ is solved using the Thomas algorithm in $\mathcal{O}(N)$ operations. Due to strict diagonal dominance, elimination without pivoting is unconditionally stable.
@@ -262,7 +262,7 @@ $$\frac{P_{\text{peak}}}{\bar{P}} = \frac{\pi}{2} \approx 1.5708$$
 
 ## 10. Version 2: Heterogeneous Core and Reflector Model
 
-Building on the verified homogeneous analytical baseline, Version 2 introduces a research-grade multi-region heterogeneous reactor model to investigate spatial interface neutronics, reflector savings, and critical fuel dimensions.
+Building on the verified homogeneous analytical baseline, Version 2 introduces a research-oriented computational model for heterogeneous one-dimensional neutron diffusion to investigate spatial interface neutronics, reflector savings, and critical fuel dimensions.
 
 ### 10.1 Physical Motivation & Core-Reflector Systems
 
@@ -596,6 +596,7 @@ This code is an educational and research computational prototype developed for t
 3. **Diffusion Approximation**: Fick's Law assumes isotropic scattering and weak absorption ($\Sigma_a \ll \Sigma_s$). It breaks down within $2\text{--}3$ mean free paths of vacuum boundaries and strong localized absorbers.
 4. **Thermal-Hydraulic Feedback**: Cross sections are temperature- and density-independent; Doppler broadening and moderator density feedback are not modeled.
 5. **Depletion & Kinetics**: Steady-state snapshot; time-dependent kinetics, delayed neutron precursors, and fuel burnup are omitted.
+6. **Non-Production Prototype**: Developed as a transparent scientific computing and educational research prototype; it is not qualified for commercial licensing, industrial safety margins, or production reactor analysis.
 
 ---
 

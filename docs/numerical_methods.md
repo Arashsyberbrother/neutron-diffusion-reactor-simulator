@@ -45,7 +45,8 @@ $$\mathbf{A} \boldsymbol{\phi} = \frac{1}{k_{\text{eff}}} \mathbf{F} \boldsymbol
 3. **Strict Diagonal Dominance**: For $\Sigma_a > 0$:
    $$|A_{i,i}| = \frac{2D}{\Delta x^2} + \Sigma_a > \sum_{j \ne i} |A_{i,j}| = \frac{2D}{\Delta x^2}$$
 4. **Positive Definiteness**: All eigenvalues of $\mathbf{A}$ are strictly positive ($\lambda_{\min}(\mathbf{A}) > 0$).
-5. **M-Matrix Character**: The off-diagonal entries are non-positive ($A_{i,j} \le 0$ for $i \ne j$), and $\mathbf{A}$ is non-singular with $\mathbf{A}^{-1} > 0$. By the Perron-Frobenius theorem, any non-negative source produces a strictly positive flux distribution.
+5. **M-Matrix Character and Inverse Positivity**: The off-diagonal entries are non-positive ($A_{i,j} \le 0$ for $i \ne j$), diagonal entries are positive, and $\mathbf{A}$ is strictly diagonally dominant for $\Sigma_a > 0$. Under these conditions, $\mathbf{A}$ is a non-singular M-matrix satisfying the inverse-positivity property $\mathbf{A}^{-1} \ge 0$, which ensures that any non-negative source $\mathbf{s} \ge 0$ yields a physically meaningful non-negative flux solution $\boldsymbol{\phi} = \mathbf{A}^{-1}\mathbf{s} \ge 0$.
+   Separately, in the context of the generalized eigenvalue problem $\mathbf{A}\boldsymbol{\phi} = \frac{1}{k_{\text{eff}}} \mathbf{F}\boldsymbol{\phi}$, Perron-Frobenius theory applies to the non-negative iteration operator $\mathbf{T} = \mathbf{A}^{-1}\mathbf{F}$, ensuring that the dominant eigenvalue $k_{\text{eff}} = \rho(\mathbf{T})$ is unique and positive, with a corresponding strictly non-negative fundamental eigenmode.
 
 ---
 
