@@ -1,0 +1,33 @@
+{
+  "benchmark": "1D Homogeneous Slab Reactor Baseline",
+  "parameters": {
+    "length_cm": 100.0,
+    "diffusion_coefficient_cm": 1.0,
+    "absorption_cross_section_cm_inv": 0.02,
+    "fission_production_cross_section_cm_inv": 0.025,
+    "geometric_buckling_cm_inv_sq": 0.0009869604401089359,
+    "diffusion_length_cm": 7.0710678118654755,
+    "k_infinity": 1.25
+  },
+  "discretization": {
+    "num_cells": 100,
+    "num_interior_nodes": 99,
+    "dx_cm": 1.0
+  },
+  "convergence": {
+    "converged": true,
+    "iterations": 39,
+    "tolerance_k": 1e-07,
+    "tolerance_flux": 1e-06,
+    "runtime_seconds": 0.011875599999257247
+  },
+  "results": {
+    "numerical_keff": 1.1912202655892026,
+    "analytical_keff": 1.1912158538318678,
+    "absolute_error": 4.411757334787936e-06,
+    "relative_error": 3.703575066262194e-06,
+    "pcm_error": 0.4411757334787936,
+    "flux_l2_relative_error": 1.3109125194930962e-06,
+    "flux_linf_error": 1.853911431037858e-07
+  }
+}

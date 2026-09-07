@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software in academic research or coursework, please cite it as below."
+title: "neutron-diffusion-reactor-simulator: A Scientific 1D Neutron Diffusion Eigenvalue Solver and Reactor Physics Analysis Framework"
+authors:
+  - name: "Computational Nuclear Engineering Research"
+version: 0.1.0
+date-released: 2026-09-07
+license: MIT
+repository-code: "https://github.com/computational-nuclear/neutron-diffusion-reactor-simulator"
+keywords:
+  - "nuclear engineering"
+  - "reactor physics"
+  - "neutron diffusion"
+  - "power iteration"
+  - "eigenvalue problem"
+  - "finite differences"
+  - "scientific computing"

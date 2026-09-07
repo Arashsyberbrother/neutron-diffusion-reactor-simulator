@@ -1,0 +1,66 @@
+{
+  "analytical_keff": 1.1912158538318678,
+  "mesh_refinements": [
+    {
+      "num_cells": 20,
+      "dx_cm": 5.0,
+      "numerical_keff": 1.1913309560936094,
+      "relative_keff_error": 9.662586454952635e-05,
+      "flux_l2_relative_error": 1.7755824092249175e-10,
+      "iterations": 68,
+      "runtime_seconds": 0.013510199999473116
+    },
+    {
+      "num_cells": 40,
+      "dx_cm": 2.5,
+      "numerical_keff": 1.1912446450526388,
+      "relative_keff_error": 2.416960845377085e-05,
+      "flux_l2_relative_error": 1.3539419290871095e-10,
+      "iterations": 68,
+      "runtime_seconds": 0.015579299999444629
+    },
+    {
+      "num_cells": 80,
+      "dx_cm": 1.25,
+      "numerical_keff": 1.1912230525957173,
+      "relative_keff_error": 6.043206885060289e-06,
+      "flux_l2_relative_error": 1.739997299872091e-10,
+      "iterations": 67,
+      "runtime_seconds": 0.019620799999756855
+    },
+    {
+      "num_cells": 160,
+      "dx_cm": 0.625,
+      "numerical_keff": 1.1912176535650219,
+      "relative_keff_error": 1.5108371402820764e-06,
+      "flux_l2_relative_error": 1.711016407440213e-10,
+      "iterations": 67,
+      "runtime_seconds": 0.03148369999962597
+    },
+    {
+      "num_cells": 320,
+      "dx_cm": 0.3125,
+      "numerical_keff": 1.1912163037499386,
+      "relative_keff_error": 3.776965101263918e-07,
+      "flux_l2_relative_error": 1.7038429915912511e-10,
+      "iterations": 67,
+      "runtime_seconds": 0.05334039999979723
+    },
+    {
+      "num_cells": 640,
+      "dx_cm": 0.15625,
+      "numerical_keff": 1.191215966292778,
+      "relative_keff_error": 9.440850688662629e-08,
+      "flux_l2_relative_error": 1.7021441751723054e-10,
+      "iterations": 67,
+      "runtime_seconds": 0.09080829999948037
+    }
+  ],
+  "observed_convergence": {
+    "keff_convergence_order": 1.9998805396948647,
+    "keff_r_squared": 0.9999999931614747,
+    "flux_convergence_order": -0.01902722100733354,
+    "flux_r_squared": 0.06028487205429178,
+    "expected_theoretical_order": 2.0
+  }
+}

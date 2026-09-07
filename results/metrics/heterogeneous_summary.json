@@ -1,0 +1,50 @@
+{
+  "model": "1D Symmetric Reflected Core (Version 2)",
+  "geometry": {
+    "total_length_cm": 120.0,
+    "fuel_thickness_cm": 80.0,
+    "reflector_thickness_cm": 20.0,
+    "interfaces_cm": [
+      20.0,
+      100.0
+    ]
+  },
+  "fuel_properties": {
+    "D_cm": 1.2,
+    "sigma_a_cm_inv": 0.022,
+    "nu_sigma_f_cm_inv": 0.026
+  },
+  "reflector_properties": {
+    "D_cm": 0.85,
+    "sigma_a_cm_inv": 0.003,
+    "nu_sigma_f_cm_inv": 0.0
+  },
+  "results": {
+    "keff": 1.1365353962243447,
+    "iterations": 34,
+    "runtime_seconds": 0.1943742999992537,
+    "peak_to_average_core_power": 1.2250939613211653
+  },
+  "interface_diagnostics": {
+    "left_interface": {
+      "interface_x": 20.0,
+      "phi_node": 0.06168462651655325,
+      "phi_left_neighbor": 0.059657775904914195,
+      "phi_right_neighbor": 0.06340769523957207,
+      "flux_jump": 0.00015189094431011796,
+      "current_left_face": -0.0037166519080842012,
+      "current_right_face": -0.003749397541288952,
+      "current_difference": 3.274563320475061e-05
+    },
+    "right_interface": {
+      "interface_x": 100.0,
+      "phi_node": 0.06168462651655338,
+      "phi_left_neighbor": 0.0634076952395722,
+      "phi_right_neighbor": 0.059657775904914334,
+      "flux_jump": 0.00015189094431011796,
+      "current_left_face": 0.0037493975412889366,
+      "current_right_face": 0.003716651908084188,
+      "current_difference": 3.274563320474844e-05
+    }
+  }
+}
