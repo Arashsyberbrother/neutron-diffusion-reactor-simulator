@@ -4,30 +4,74 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-A modular, research-oriented computational nuclear engineering laboratory solving the steady-state, one-energy-group neutron diffusion eigenvalue problem in homogeneous slab geometry using second-order central finite differences and power iteration.
+A modular, research-oriented computational reactor-physics framework solving the steady-state, one-energy-group neutron diffusion eigenvalue problem for both homogeneous and multi-region heterogeneous reflected reactor cores in 1D slab geometry.
+
+- **What it is**: A transparent scientific computing laboratory implementing conservative second-order finite-difference discretization, harmonic interface diffusion coefficients, an $\mathcal{O}(N)$ Thomas algorithm (TDMA), and power iteration to determine the fundamental effective multiplication factor ($k_{\text{eff}}$), spatial scalar neutron flux ($\phi(x)$), and core fission power distribution ($P(x)$).
+- **What it demonstrates**: Exact analytical benchmark verification ($< 0.5\text{ pcm}$ error), asymptotic second-order spatial mesh convergence ($\mathcal{O}(\Delta x^2)$), multi-region core-reflector interface physics, reflector savings ($\Delta k > 0$), core flux/power flattening, and robust numerical critical fuel sizing ($T_{\text{crit}}$).
+- **Why it is interesting**: The simulator progresses logically from an analytically verifiable homogeneous slab benchmark to a multi-region heterogeneous core-reflector system with discontinuous cross sections, providing an accessible yet mathematically rigorous bridge between introductory reactor theory and modern computational methods.
+
+---
+
+## Key Results
+
+Below is a summary of the headline computational results produced by the framework's canonical baseline and heterogeneous core/reflector models:
+
+| Quantity | Computational Result | Physical Context / Benchmark Description |
+| :--- | :---: | :--- |
+| **Bare-Core Eigenvalue ($k_{\text{eff}}$)** | `1.09012419` | $80.0\text{ cm}$ active fuel core with vacuum boundary conditions ($\phi=0$) |
+| **Reflected-Core Eigenvalue ($k_{\text{eff}}$)** | `1.13653540` | Identical $80.0\text{ cm}$ core flanked symmetrically by $20.0\text{ cm}$ reflectors |
+| **Reflector Savings ($\Delta k$)** | `+0.04641121` | **$+4641.1\text{ pcm}$** reactivity gain from reflector neutron back-scattering |
+| **Core Power Flattening** | `22.0% reduction` | Peak-to-average power ratio ($P_{\text{peak}}/\bar{P}$) drops from $1.5708$ to $1.2251$ |
+| **Critical Fuel Thickness ($T_{\text{crit}}$)** | `24.9658 cm` | Numerical root of discrete heterogeneous model with $20.0\text{ cm}$ reflectors |
+| **Criticality Verification ($k_{\text{eff}}(T_{\text{crit}})$)** | `0.99999873` | Residual $|k_{\text{eff}} - 1.0| = 1.27 \times 10^{-6}$ ($0.13\text{ pcm}$ from exact critical) |
+| **Homogeneous Analytical Benchmark** | `1.19121585` | Closed-form exact solution: $k_{\text{eff}} = \nu\Sigma_f / (\Sigma_a + D B_g^2)$ |
+| **Homogeneous Discretization Error** | `+4.41e-06` | Numerical eigenvalue discrepancy of only **$0.44\text{ pcm}$** ($N=100$, $\Delta x = 1.0\text{ cm}$) |
+| **Spatial Convergence Order ($p$)** | `p = 2.000` | Asymptotic rate fitted over $N \in [20, 640]$ cells ($R^2 = 1.0000$, matches $\mathcal{O}(\Delta x^2)$) |
+| **Automated Verification Tests** | `45 / 45 passing` | 100% test pass rate across 12 automated verification test modules |
+
+*(Note: These values reflect the project's illustrative computational models and are strictly reproducible via the included CLI and test suite).*
+
+### Primary Scientific Figures
+
+#### Heterogeneous Core-Reflector Flux & Power Distribution
+![Heterogeneous Core-Reflector Flux and Power](results/figures/core_reflector_flux.png)
+*Figure 1: Numerical scalar neutron flux $\phi(x)$ (top panel) and normalized fission power density $P(x)$ (bottom panel) across the symmetric reflected core ($20\text{ cm}$ reflector, $80\text{ cm}$ fuel, $20\text{ cm}$ reflector). The non-multiplying reflectors scatter escaping neutrons back into the core, elevating peripheral flux and reducing peak-to-average core power concentration from $1.571$ to $1.225$.*
+
+#### Reflector Savings: Bare vs. Reflected Reactor
+![Bare vs Reflected Core Flux and Eigenvalues](results/figures/bare_vs_reflector_keff.png)
+*Figure 2: Controlled comparison of an identical $80\text{ cm}$ active fuel core with and without reflector regions. Adding a $20\text{ cm}$ heavy-water/graphite reflector increases the fundamental eigenvalue from $1.09012$ to $1.13654$ ($\Delta k = +0.04641$, $+4641.1\text{ pcm}$), shifting the assembly from subcritical to supercritical solely through leakage reduction.*
+
+#### Numerical Critical Fuel Core Sizing
+![Critical Fuel Core Thickness Root Finding](results/figures/critical_fuel_thickness.png)
+*Figure 3: Numerical determination of the critical fuel core thickness $T_{\text{crit}}$ for a fixed $20\text{ cm}$ reflector. Parameter sweep (markers) establishes strict monotonicity, and bisection root-finding determines $T_{\text{crit}} = 24.9658\text{ cm}$ with a direct evaluation of $k_{\text{eff}}(T_{\text{crit}}) = 0.99999873$ ($|k_{\text{eff}} - 1.0| = 0.13\text{ pcm}$).*
+
+#### Second-Order Spatial Mesh Convergence
+![Log-Log Spatial Mesh Convergence](results/figures/mesh_convergence.png)
+*Figure 4: Asymptotic spatial mesh refinement analysis over grid resolutions $N \in [20, 640]$ ($\Delta x \in [0.156, 5.0]\text{ cm}$). Log-log linear regression confirms an observed spatial convergence order of $p = 2.000$ ($R^2 = 1.0000$) for the fundamental eigenvalue, confirming the theoretical $\mathcal{O}(\Delta x^2)$ accuracy of the central finite-difference operator.*
 
 ---
 
 ## Table of Contents
 
-1. [Scientific Objective & Motivation](#1-scientific-objective--motivation)
-2. [Physical Model & Governing Equations](#2-physical-model--governing-equations)
-3. [Boundary Conditions](#3-boundary-conditions)
-4. [Analytical Verification Benchmark](#4-analytical-verification-benchmark)
-5. [Numerical Discretization & Operators](#5-numerical-discretization--operators)
-6. [Power Iteration Algorithm](#6-power-iteration-algorithm)
-7. [Verification & Mesh Convergence Study](#7-verification--mesh-convergence-study)
-8. [Reactor Physics Parameter Sensitivity Analysis](#8-reactor-physics-parameter-sensitivity-analysis)
-9. [Flux and Power Distributions](#9-flux-and-power-distributions)
-10. [Version 2: Heterogeneous Core and Reflector Model](#10-version-2-heterogeneous-core-and-reflector-model)
-11. [Generated Publication Figures](#11-generated-publication-figures)
-12. [Project Architecture & Design](#12-project-architecture--design)
-13. [Installation & Reproduction Instructions](#13-installation--reproduction-instructions)
-14. [CLI Usage](#14-cli-usage)
-15. [Automated Verification Test Suite](#15-automated-verification-test-suite)
-16. [Scope & Limitations](#16-scope--limitations)
-17. [Future Research Extensions](#17-future-research-extensions)
-18. [References](#18-references)
+1. [Key Results](#key-results)
+2. [Scientific Objective & Motivation](#1-scientific-objective--motivation)
+3. [Physical Model & Governing Equations](#2-physical-model--governing-equations)
+4. [Boundary Conditions](#3-boundary-conditions)
+5. [Analytical Verification Benchmark](#4-analytical-verification-benchmark)
+6. [Numerical Discretization & Operators](#5-numerical-discretization--operators)
+7. [Power Iteration Algorithm](#6-power-iteration-algorithm)
+8. [Verification & Mesh Convergence Study](#7-verification--mesh-convergence-study)
+9. [Reactor Physics Parameter Sensitivity Analysis](#8-reactor-physics-parameter-sensitivity-analysis)
+10. [Flux and Power Distributions](#9-flux-and-power-distributions)
+11. [Version 2: Heterogeneous Core and Reflector Model](#10-version-2-heterogeneous-core-and-reflector-model)
+12. [Generated Publication Figures](#11-generated-publication-figures)
+13. [Project Architecture & Design](#12-project-architecture--design)
+14. [Installation & Reproduction Instructions](#13-installation--reproduction-instructions)
+15. [CLI Usage](#14-cli-usage)
+16. [Automated Verification Test Suite](#15-automated-verification-test-suite)
+17. [Scope & Limitations](#16-scope--limitations)
+18. [Future Research Extensions](#17-future-research-extensions)
+19. [References](#18-references)
 
 
 ---
