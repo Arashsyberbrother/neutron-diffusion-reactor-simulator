@@ -196,8 +196,134 @@ def compare_bare_vs_reflected(output_dir: str | Path = "results") -> dict[str, A
     return comparison_data
 
 
+def solve_reflected_keff_at_thickness(
+    fuel_thickness: float,
+    reflector_thickness: float,
+    fuel_materials: MaterialProperties,
+    reflector_materials: MaterialProperties,
+    target_dx: float = 0.5,
+    symmetric: bool = True,
+) -> float:
+    """Solve for k_eff of a reflected core slab with specified fuel thickness.
+
+    Parameters
+    ----------
+    fuel_thickness : float
+        Thickness of active fuel region in cm.
+    reflector_thickness : float
+        Thickness of non-multiplying reflector in cm.
+    fuel_materials : MaterialProperties
+        Active core material properties.
+    reflector_materials : MaterialProperties
+        Reflector material properties.
+    target_dx : float, optional
+        Target nominal cell spacing in cm (default: 0.5 cm).
+    symmetric : bool, optional
+        Whether configuration is symmetric (default: True).
+
+    Returns
+    -------
+    float
+        Converged effective neutron multiplication factor k_eff.
+    """
+    model = create_reflected_slab(
+        fuel_thickness=fuel_thickness,
+        reflector_thickness=reflector_thickness,
+        fuel_materials=fuel_materials,
+        reflector_materials=reflector_materials,
+        symmetric=symmetric,
+    )
+    n_cells = int(round(model.geometry.length / target_dx))
+    mesh = UniformMesh1D(geometry=model.geometry, num_cells=n_cells)
+    res = HeterogeneousPowerIterationSolver(mesh=mesh, material_model=model).solve()
+    return res.keff
+
+
+def find_critical_fuel_thickness_bisection(
+    bracket: tuple[float, float],
+    reflector_thickness: float,
+    fuel_materials: MaterialProperties,
+    reflector_materials: MaterialProperties,
+    tol_keff: float = 1.0e-5,
+    max_iterations: int = 50,
+    target_dx: float = 0.5,
+) -> tuple[float, float, int, float]:
+    """Find critical fuel thickness using bisection root-finding on $f(T) = k_{\\text{eff}}(T) - 1.0$.
+
+    Parameters
+    ----------
+    bracket : tuple of (float, float)
+        $(T_{\\text{low}}, T_{\\text{high}})$ strictly bracketing the critical point.
+    reflector_thickness : float
+        Thickness of reflector in cm.
+    fuel_materials : MaterialProperties
+        Core fuel cross sections.
+    reflector_materials : MaterialProperties
+        Reflector cross sections.
+    tol_keff : float, optional
+        Convergence tolerance on $|k_{\\text{eff}} - 1.0|$, default 1e-5.
+    max_iterations : int, optional
+        Maximum bisection iterations, default 50.
+    target_dx : float, optional
+        Nominal grid spacing in cm, default 0.5 cm.
+
+    Returns
+    -------
+    t_crit : float
+        Converged critical fuel thickness in cm.
+    keff_crit : float
+        Direct evaluation of $k_{\\text{eff}}$ at $T_{\\text{crit}}$.
+    iterations : int
+        Number of bisection iterations performed.
+    uncertainty_cm : float
+        Numerical resolution (half-width of final bracket) in cm.
+    """
+    t_low, t_high = float(bracket[0]), float(bracket[1])
+    k_low = solve_reflected_keff_at_thickness(
+        t_low, reflector_thickness, fuel_materials, reflector_materials, target_dx=target_dx
+    )
+    k_high = solve_reflected_keff_at_thickness(
+        t_high, reflector_thickness, fuel_materials, reflector_materials, target_dx=target_dx
+    )
+
+    f_low = k_low - 1.0
+    f_high = k_high - 1.0
+
+    if f_low * f_high > 0.0:
+        raise ValueError(
+            f"Provided bracket [{t_low}, {t_high}] does not bracket k_eff = 1.0: "
+            f"f({t_low}) = {f_low:+.6e}, f({t_high}) = {f_high:+.6e}."
+        )
+
+    iter_count = 0
+    while iter_count < max_iterations:
+        iter_count += 1
+        t_mid = 0.5 * (t_low + t_high)
+        k_mid = solve_reflected_keff_at_thickness(
+            t_mid, reflector_thickness, fuel_materials, reflector_materials, target_dx=target_dx
+        )
+        f_mid = k_mid - 1.0
+
+        if abs(f_mid) <= tol_keff or (t_high - t_low) < 1.0e-7:
+            t_crit = t_mid
+            return t_crit, k_mid, iter_count, 0.5 * (t_high - t_low)
+
+        if f_low * f_mid < 0.0:
+            t_high = t_mid
+            f_high = f_mid
+        else:
+            t_low = t_mid
+            f_low = f_mid
+
+    t_crit = 0.5 * (t_low + t_high)
+    k_crit = solve_reflected_keff_at_thickness(
+        t_crit, reflector_thickness, fuel_materials, reflector_materials, target_dx=target_dx
+    )
+    return t_crit, k_crit, iter_count, 0.5 * (t_high - t_low)
+
+
 def study_critical_fuel_thickness(output_dir: str | Path = "results") -> dict[str, Any]:
-    """Determine approximate numerical critical fuel core thickness with fixed reflector."""
+    """Determine numerical critical fuel core thickness with fixed reflector via bisection root finding."""
     out_path = Path(output_dir)
     fig_dir = out_path / "figures"
     metric_dir = out_path / "metrics"
@@ -209,45 +335,51 @@ def study_critical_fuel_thickness(output_dir: str | Path = "results") -> dict[st
     fuel_mats, refl_mats = get_default_heterogeneous_materials()
     refl_t = 20.0
 
-    # Fuel thicknesses sweep bracketing critical thickness (~25 cm)
+    # 1. Parameter sweep across fuel thicknesses to establish profile and initial bracket
     fuel_thicknesses = [15.0, 20.0, 25.0, 30.0, 45.0, 60.0, 80.0]
     keff_values: list[float] = []
 
     for ft in fuel_thicknesses:
-        model = create_reflected_slab(
+        k = solve_reflected_keff_at_thickness(
             fuel_thickness=ft,
             reflector_thickness=refl_t,
             fuel_materials=fuel_mats,
             reflector_materials=refl_mats,
-            symmetric=True,
+            target_dx=0.5,
         )
-        # Choose cell count to maintain dx ~ 0.5 cm
-        n_cells = int(round(model.geometry.length / 0.5))
-        mesh = UniformMesh1D(geometry=model.geometry, num_cells=n_cells)
-        res = HeterogeneousPowerIterationSolver(mesh=mesh, material_model=model).solve()
-        keff_values.append(res.keff)
+        keff_values.append(k)
 
-    # Numerical root finding for k_eff(T_crit) = 1.0 using monotonic spline interpolation
-    cs = CubicSpline(fuel_thicknesses, np.array(keff_values) - 1.0)
-    roots = cs.roots()
-    valid_roots = [r for r in roots if min(fuel_thicknesses) <= r <= max(fuel_thicknesses)]
-    crit_fuel_thickness = float(valid_roots[0]) if valid_roots else float(np.interp(1.0, keff_values, fuel_thicknesses))
+    # 2. Identify bracket containing k_eff = 1.0
+    idx_bracket = None
+    for i in range(len(fuel_thicknesses) - 1):
+        if (keff_values[i] - 1.0) * (keff_values[i + 1] - 1.0) <= 0.0:
+            idx_bracket = i
+            break
 
-    # Verify critical result with dedicated solve
-    crit_model = create_reflected_slab(
-        fuel_thickness=crit_fuel_thickness,
+    if idx_bracket is None:
+        raise RuntimeError("Failed to bracket critical fuel thickness in parameter sweep.")
+
+    initial_bracket = (float(fuel_thicknesses[idx_bracket]), float(fuel_thicknesses[idx_bracket + 1]))
+
+    # 3. Robust bisection root finding for f(T_crit) = k_eff(T_crit) - 1.0 = 0
+    crit_fuel_thickness, crit_keff, n_bisection_iters, uncertainty_cm = find_critical_fuel_thickness_bisection(
+        bracket=initial_bracket,
         reflector_thickness=refl_t,
         fuel_materials=fuel_mats,
         reflector_materials=refl_mats,
-        symmetric=True,
+        tol_keff=1.0e-5,
+        target_dx=0.5,
     )
-    crit_mesh = UniformMesh1D(
-        geometry=crit_model.geometry,
-        num_cells=int(round(crit_model.geometry.length / 0.5)),
-    )
-    crit_res = HeterogeneousPowerIterationSolver(mesh=crit_mesh, material_model=crit_model).solve()
 
-    # Plot
+    # 4. Local verification at T_crit - 0.5 cm, T_crit, and T_crit + 0.5 cm
+    k_minus_0_5 = solve_reflected_keff_at_thickness(
+        crit_fuel_thickness - 0.5, refl_t, fuel_mats, refl_mats, target_dx=0.5
+    )
+    k_plus_0_5 = solve_reflected_keff_at_thickness(
+        crit_fuel_thickness + 0.5, refl_t, fuel_mats, refl_mats, target_dx=0.5
+    )
+
+    # 5. Plot
     plot_critical_fuel_thickness(
         fuel_thicknesses=fuel_thicknesses,
         keff_values=keff_values,
@@ -255,13 +387,27 @@ def study_critical_fuel_thickness(output_dir: str | Path = "results") -> dict[st
         output_path=fig_dir / "critical_fuel_thickness.png",
     )
 
+    err_pcm = abs(crit_keff - 1.0) * 1.0e5
+
     data: dict[str, Any] = {
         "reflector_thickness_cm": refl_t,
         "fuel_thicknesses_sweep_cm": fuel_thicknesses,
         "keff_sweep": keff_values,
+        "initial_bracket_cm": [initial_bracket[0], initial_bracket[1]],
+        "bracket_keff": [keff_values[idx_bracket], keff_values[idx_bracket + 1]],
+        "bisection_iterations": n_bisection_iters,
         "numerical_critical_fuel_thickness_cm": crit_fuel_thickness,
-        "critical_keff_verification": crit_res.keff,
-        "error_from_critical_pcm": abs(crit_res.keff - 1.0) * 1.0e5,
+        "critical_keff_verification": crit_keff,
+        "error_from_critical_pcm": err_pcm,
+        "numerical_uncertainty_cm": uncertainty_cm,
+        "local_verification": {
+            "t_minus_0_5_cm": crit_fuel_thickness - 0.5,
+            "keff_minus_0_5": k_minus_0_5,
+            "t_crit_cm": crit_fuel_thickness,
+            "keff_crit": crit_keff,
+            "t_plus_0_5_cm": crit_fuel_thickness + 0.5,
+            "keff_plus_0_5": k_plus_0_5,
+        },
     }
 
     with open(metric_dir / "critical_thickness.json", "w", encoding="utf-8") as f:
@@ -274,6 +420,7 @@ def study_critical_fuel_thickness(output_dir: str | Path = "results") -> dict[st
             writer.writerow([f"{ft:.2f}", f"{k:.8f}"])
 
     return data
+
 
 
 def run_heterogeneous_parameter_study(output_dir: str | Path = "results") -> dict[str, Any]:

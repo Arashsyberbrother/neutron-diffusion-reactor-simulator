@@ -361,7 +361,7 @@ Normalizing the power density such that the active core average $\bar{P}_{\text{
 
 ### 10.8 Numerical Critical Fuel Thickness Search
 
-Using a fixed reflector thickness $T_{\text{refl}} = 20.0\text{ cm}$, a systematic fuel thickness sweep was performed:
+Using a fixed reflector thickness $T_{\text{refl}} = 20.0\text{ cm}$, a systematic fuel thickness sweep was conducted to bracket the critical transition:
 
 | Fuel Thickness $T_{\text{fuel}}$ [cm] | System Thickness $L_{\text{tot}}$ [cm] | Calculated $k_{\text{eff}}$ | System Reactivity State |
 | :---: | :---: | :---: | :---: |
@@ -373,9 +373,18 @@ Using a fixed reflector thickness $T_{\text{refl}} = 20.0\text{ cm}$, a systemat
 | $60.0$ | $100.0$ | $1.115222$ | Supercritical |
 | $80.0$ | $120.0$ | $1.136535$ | Supercritical |
 
-- **Bracketing Interval**: The critical transition occurs between $20.0\text{ cm}$ ($k_{\text{eff}} \approx 0.9565$) and $25.0\text{ cm}$ ($k_{\text{eff}} \approx 1.0002$).
-- **Calculated Critical Fuel Thickness**: $T_{\text{crit}} \approx 24.9658\text{ cm} \approx 24.97\text{ cm}$.
-- **Criticality Verification**: Evaluating the system at $T_{\text{fuel}} = 24.9658\text{ cm}$ yields $k_{\text{eff}} = 0.99717$, within **$282.5\text{ pcm}$** of exact criticality ($k_{\text{eff}} = 1.000$).
+- **Initial Bracketing Interval**: The critical point is bracketed by $[20.0, 25.0]\text{ cm}$ with $k_{\text{eff}}(20.0) = 0.956480 < 1.0 < k_{\text{eff}}(25.0) = 1.000248$.
+- **Numerical Root Finding (Bisection)**: Defining the residual function $f(T) = k_{\text{eff}}(T) - 1.0$, a robust bisection root solve was conducted using the identical multi-region model, conservative discretization, and convergence criteria.
+- **Converged Numerical Critical Fuel Thickness**: $T_{\text{crit}} = 24.96582031\text{ cm} \approx 24.97\text{ cm}$ (numerical resolution uncertainty $\pm 0.0049\text{ cm}$). Note that $T_{\text{crit}}$ is a numerical root of the discretized model, not an exact analytical formula.
+- **Direct Criticality Verification**: Evaluating the discretized model directly at $T_{\text{crit}}$ yields:
+  $$k_{\text{eff}}(T_{\text{crit}}) = 0.99999873, \quad |k_{\text{eff}}(T_{\text{crit}}) - 1.0| = 1.27 \times 10^{-6} \text{ (0.13 pcm)}$$
+  which strictly meets the accuracy requirement $|k_{\text{eff}} - 1| \le 10^{-4}$.
+- **Local Neighborhood Verification**:
+  $$k_{\text{eff}}(T_{\text{crit}} - 0.5\text{ cm} = 24.4658\text{ cm}) = 0.99628491 < 1.0$$
+  $$k_{\text{eff}}(T_{\text{crit}} = 24.9658\text{ cm}) = 0.99999873 \approx 1.0$$
+  $$k_{\text{eff}}(T_{\text{crit}} + 0.5\text{ cm} = 25.4658\text{ cm}) = 1.00358927 > 1.0$$
+  confirming that $T_{\text{crit}}$ is the unique numerical root of the discretized system.
+
 
 ### 10.9 Heterogeneous Parameter Sensitivity Sweeps
 
@@ -557,14 +566,14 @@ python -m neutron_diffusion.cli critical-thickness
 
 ## 15. Automated Verification Test Suite
 
-The test suite contains **44 automated unit and regression tests** across 12 test modules, verifying mathematical formulas, matrix properties, linear solvers, convergence rates, and interface physics.
+The test suite contains **45 automated unit and regression tests** across 12 test modules, verifying mathematical formulas, matrix properties, linear solvers, convergence rates, and interface physics.
 
 To run the complete test suite:
 ```bash
 pytest -v
 ```
 
-### Summary of Test Coverage (44/44 Passing):
+### Summary of Test Coverage (45/45 Passing):
 - **Exact Analytical Formulas**: Verification that $k_{\text{eff}} = \nu\Sigma_f / (\Sigma_a + D B_g^2)$ evaluates without algebraic error, and critical relation $\nu\Sigma_f = \Sigma_a + D B_g^2 \implies k_{\text{eff}} = 1.000000000$.
 - **Diffusion Length**: Verification of $L_d = \sqrt{D / \Sigma_a} = 7.0711\text{ cm}$.
 - **Matrix Operators**: Tridiagonal matrix symmetry ($A = A^T$), strict diagonal dominance, and positive definiteness for both homogeneous and heterogeneous operators.
@@ -573,8 +582,9 @@ pytest -v
 - **Spatial Convergence**: Empirical confirmation of asymptotic second-order convergence ($p = 2.000 \pm 0.02$).
 - **Interface Flux and Current Continuity**: Verification that $\Delta \phi_{\text{int}} < 10^{-3}$ and face current continuity $\Delta J_{\text{int}} < 10^{-3}$ across fuel/reflector interfaces.
 - **Reflector Savings**: Mathematical assertion that reflected $k_{\text{eff}} >$ bare $k_{\text{eff}}$ ($\Delta k > 0$) and power peaking is strictly reduced.
-- **Critical Thickness Search**: Verification that the bracketed critical fuel thickness yields $k_{\text{eff}} \approx 1.0$ within $300\text{ pcm}$.
+- **Critical Thickness Root Solving**: Robust bisection root finding on $f(T) = k_{\text{eff}}(T) - 1.0$ yielding $T_{\text{crit}} \approx 24.97\text{ cm}$ with $|k_{\text{eff}} - 1.0| = 1.27 \times 10^{-6}$ ($0.13\text{ pcm}$), verified local monotonicity ($k_{\text{eff}}(T-0.5) < 1 < k_{\text{eff}}(T+0.5)$), and strict reproducibility.
 - **CLI & Artifacts**: End-to-end testing of all CLI subcommands and verification of generated output files.
+
 
 ---
 

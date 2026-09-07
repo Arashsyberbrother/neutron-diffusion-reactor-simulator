@@ -115,7 +115,14 @@ $$\sigma = \frac{0.02 + 1.0 \times 9.87 \times 10^{-4}}{0.02 + 1.0 \times 3.95 \
 
 With $\sigma \approx 0.876$, the spectral radius ensures rapid and reliable geometric convergence in approximately 35 to 45 iterations.
 
+The characteristic spatial scale of the discrete diffusion process is governed by the thermal diffusion length:
+
+$$L_d = \sqrt{\frac{D}{\Sigma_a}} = \sqrt{\frac{1.0}{0.020}} \approx 7.07106781\text{ cm}$$
+
+which confirms that the baseline grid spacing $\Delta x = 1.0\text{ cm}$ adequately resolves the continuous spatial flux gradients ($L_d / \Delta x \approx 7.07$).
+
 ---
+
 
 ## 5. Conservative Discretization for Heterogeneous Media
 

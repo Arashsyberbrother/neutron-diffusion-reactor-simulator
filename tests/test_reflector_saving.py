@@ -28,15 +28,53 @@ def test_reflector_saving_reactivity_gain(tmp_path: Path) -> None:
 
 
 def test_critical_fuel_thickness_solver(tmp_path: Path) -> None:
-    """Verify that the numerical critical fuel thickness workflow finds an active core size where k_eff ~ 1.0."""
+    """Verify that the numerical critical fuel thickness workflow robustly brackets and converges to k_eff ~ 1.0."""
+    import numpy as np
+
     data = study_critical_fuel_thickness(output_dir=tmp_path)
 
     crit_t = data["numerical_critical_fuel_thickness_cm"]
     crit_k = data["critical_keff_verification"]
+    bracket = data["initial_bracket_cm"]
+    bracket_k = data["bracket_keff"]
+    keff_sweep = np.array(data["keff_sweep"])
 
-    assert 15.0 < crit_t < 40.0
-    # Achieves approximate numerical criticality within 500 pcm
-    assert pytest.approx(1.0, abs=0.005) == crit_k
+    # 1. Valid bracket exists
+    assert bracket[0] < bracket[1], "Bracket lower bound must be strictly less than upper bound"
+    assert bracket_k[0] < 1.0, f"Bracket lower bound must be subcritical, got {bracket_k[0]}"
+    assert bracket_k[1] > 1.0, f"Bracket upper bound must be supercritical, got {bracket_k[1]}"
+
+    # 2. Monotonic increase over parameter sweep
+    diffs = np.diff(keff_sweep)
+    assert np.all(diffs > 0.0), f"k_eff must increase strictly monotonically with fuel thickness, got diffs {diffs}"
+
+    # 3. Returned root lies inside the initial bracket
+    assert bracket[0] <= crit_t <= bracket[1], f"Root {crit_t} must lie within bracket {bracket}"
+
+    # 4. Direct k_eff satisfies accuracy target |k_eff - 1| <= 1e-4
+    err = abs(crit_k - 1.0)
+    assert err <= 1.0e-4, f"Direct k_eff error {err:.2e} exceeds target tolerance 1e-4"
+
+    # 5. Local neighborhood verification around T_crit
+    local = data["local_verification"]
+    assert local["keff_minus_0_5"] < 1.0, "k_eff at T_crit - 0.5 cm must be strictly subcritical"
+    assert abs(local["keff_crit"] - 1.0) <= 1.0e-4, "k_eff at T_crit must be within 1e-4 of critical"
+    assert local["keff_plus_0_5"] > 1.0, "k_eff at T_crit + 0.5 cm must be strictly supercritical"
+
+
+def test_critical_fuel_thickness_reproducibility(tmp_path: Path) -> None:
+    """Verify that the numerical bisection root calculation is deterministic and reproducible."""
+    d1 = study_critical_fuel_thickness(output_dir=tmp_path / "run1")
+    d2 = study_critical_fuel_thickness(output_dir=tmp_path / "run2")
+
+    t1 = d1["numerical_critical_fuel_thickness_cm"]
+    t2 = d2["numerical_critical_fuel_thickness_cm"]
+    k1 = d1["critical_keff_verification"]
+    k2 = d2["critical_keff_verification"]
+
+    assert abs(t1 - t2) < 1.0e-7, f"T_crit must be reproducible within machine resolution: {t1} vs {t2}"
+    assert abs(k1 - k2) < 1.0e-7, f"k_eff must be reproducible: {k1} vs {k2}"
+
 
 
 def test_reflector_thickness_monotonicity() -> None:

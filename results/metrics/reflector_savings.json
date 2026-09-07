@@ -2,9 +2,9 @@
   "fuel_thickness_cm": 80.0,
   "reflector_thickness_cm": 20.0,
   "bare_keff": 1.0901241898568412,
-  "reflected_keff": 1.1365353962243447,
-  "reflector_saving_delta_keff": 0.04641120636750351,
-  "reflector_saving_pcm": 4641.120636750351,
+  "reflected_keff": 1.1365353962243452,
+  "reflector_saving_delta_keff": 0.046411206367503954,
+  "reflector_saving_pcm": 4641.1206367503955,
   "bare_peak_flux": 0.15811381198006802,
-  "reflected_peak_flux": 0.1314803979612949
+  "reflected_peak_flux": 0.13148039796129482
 }

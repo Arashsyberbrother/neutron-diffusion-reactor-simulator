@@ -76,8 +76,9 @@ For the baseline research case:
 - Diffusion coefficient: $D = 1.0\text{ cm}$
 - Absorption cross section: $\Sigma_a = 0.02\text{ cm}^{-1}$
 - Neutron production: $\nu\Sigma_f = 0.025\text{ cm}^{-1}$
-- Thermal diffusion length: $L_d = \sqrt{D / \Sigma_a} = \sqrt{1.0 / 0.020} \approx 7.0711\text{ cm}$
+- Thermal diffusion length: $L_d = \sqrt{D / \Sigma_a} = \sqrt{1.0 / 0.020} = 7.07106781\text{ cm} \approx 7.0711\text{ cm}$
 - Infinite multiplication factor: $k_\infty = \nu\Sigma_f / \Sigma_a = 0.025 / 0.020 = 1.2500$
+
 
 The geometric buckling is:
 
@@ -151,3 +152,18 @@ Surrounding an active core with a non-fissionable, low-absorption, high-scatteri
 3. **Flux and Power Flattening**: The return of neutrons elevates the flux near the core perimeter. In a bare slab, the flux drops to zero at the boundary; in a reflected core, the flux at the fuel boundary remains substantial. This flattens the fission power density profile, significantly lowering the peak-to-average power ratio ($P_{\text{peak}} / \bar{P}_{\text{core}}$ drops from $1.571$ to $1.225$).
 4. **Critical Size Reduction**: Because fewer neutrons are lost to leakage, a reflected reactor requires significantly less fissile fuel to attain criticality than a bare reactor. The reduction in critical core half-thickness is termed the **reflector saving** ($\delta$):
    $$T_{\text{crit,bare}} = T_{\text{crit,refl}} + 2\delta$$
+
+### 5.3 Numerical Critical Fuel Dimension Determination
+
+While bare homogeneous slab reactors possess closed-form analytical criticality formulas:
+$$\nu\Sigma_f = \Sigma_a + D B_g^2$$
+multi-region reflected reactors have transcendental criticality equations requiring numerical root solving.
+
+In our discrete model, the critical fuel core thickness $T_{\text{crit}}$ for a given reflector thickness $T_{\text{refl}}$ is defined as the numerical root of the discrete eigenvalue residual function:
+$$f(T) = k_{\text{eff}}(T) - 1.0 = 0$$
+
+Using a robust bracketed bisection procedure:
+1. An initial parameter sweep establishes a strictly monotonic bracket $[T_{\text{low}}, T_{\text{high}}]$ where $f(T_{\text{low}}) < 0$ and $f(T_{\text{high}}) > 0$.
+2. The bisection algorithm refines the interval until $|k_{\text{eff}}(T_{\text{crit}}) - 1.0| \le 10^{-5}$.
+3. Because $T_{\text{crit}}$ is determined as the numerical root of the conservative finite-volume discretized operator (using volume-averaged property sampling and harmonic face diffusion coefficients), it captures the exact spatial leakage and interface resistance of the discrete system.
+

@@ -19,7 +19,7 @@
     "iterations": 39,
     "tolerance_k": 1e-07,
     "tolerance_flux": 1e-06,
-    "runtime_seconds": 0.011875599999257247
+    "runtime_seconds": 0.012407299999722454
   },
   "results": {
     "numerical_keff": 1.1912202655892026,

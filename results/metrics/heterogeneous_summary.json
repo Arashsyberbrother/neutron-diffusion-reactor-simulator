@@ -20,31 +20,31 @@
     "nu_sigma_f_cm_inv": 0.0
   },
   "results": {
-    "keff": 1.1365353962243447,
+    "keff": 1.1365353962243452,
     "iterations": 34,
-    "runtime_seconds": 0.1943742999992537,
-    "peak_to_average_core_power": 1.2250939613211653
+    "runtime_seconds": 1.4333136999994167,
+    "peak_to_average_core_power": 1.2250939613211644
   },
   "interface_diagnostics": {
     "left_interface": {
       "interface_x": 20.0,
-      "phi_node": 0.06168462651655325,
-      "phi_left_neighbor": 0.059657775904914195,
-      "phi_right_neighbor": 0.06340769523957207,
-      "flux_jump": 0.00015189094431011796,
-      "current_left_face": -0.0037166519080842012,
-      "current_right_face": -0.003749397541288952,
-      "current_difference": 3.274563320475061e-05
+      "phi_node": 0.0616846265165536,
+      "phi_left_neighbor": 0.05965777590491452,
+      "phi_right_neighbor": 0.06340769523957242,
+      "flux_jump": 0.00015189094431013184,
+      "current_left_face": -0.0037166519080842385,
+      "current_right_face": -0.003749397541288951,
+      "current_difference": 3.2745633204712445e-05
     },
     "right_interface": {
       "interface_x": 100.0,
-      "phi_node": 0.06168462651655338,
-      "phi_left_neighbor": 0.0634076952395722,
-      "phi_right_neighbor": 0.059657775904914334,
-      "flux_jump": 0.00015189094431011796,
-      "current_left_face": 0.0037493975412889366,
-      "current_right_face": 0.003716651908084188,
-      "current_difference": 3.274563320474844e-05
+      "phi_node": 0.06168462651655352,
+      "phi_left_neighbor": 0.06340769523957233,
+      "phi_right_neighbor": 0.05965777590491445,
+      "flux_jump": 0.0001518909443101249,
+      "current_left_face": 0.0037493975412889358,
+      "current_right_face": 0.003716651908084226,
+      "current_difference": 3.274563320470984e-05
     }
   }
 }

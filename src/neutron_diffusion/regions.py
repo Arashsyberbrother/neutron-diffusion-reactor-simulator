@@ -152,47 +152,35 @@ class PiecewiseMaterialModel:
             Boolean mask identifying nodes residing in fissionable regions (length $N+1$).
         """
         n_pts = mesh.num_points
-        d_arr = np.empty(n_pts, dtype=np.float64)
-        sa_arr = np.empty(n_pts, dtype=np.float64)
-        nsf_arr = np.empty(n_pts, dtype=np.float64)
+        dx = mesh.dx
+        length = mesh.geometry.length
+        sa_arr = np.zeros(n_pts, dtype=np.float64)
+        nsf_arr = np.zeros(n_pts, dtype=np.float64)
+        inv_d_arr = np.zeros(n_pts, dtype=np.float64)
         fiss_mask = np.zeros(n_pts, dtype=bool)
 
-        for i, xi in enumerate(mesh.x):
-            # At exact interfaces, assign property by cell averaging or interval lookup
-            # For nodal representation, test point slightly perturbed inside cell when on interface
+        for i in range(n_pts):
+            # Control volume bounds around node x_i: [x_i - dx/2, x_i + dx/2]
             if i == 0:
-                reg = self.find_region_at(xi + 1e-12)
+                x_a, x_b = 0.0, 0.5 * dx
             elif i == n_pts - 1:
-                reg = self.find_region_at(xi - 1e-12)
+                x_a, x_b = length - 0.5 * dx, length
             else:
-                # Interior node: check if exactly on interface
-                # If on interface, compute harmonic mean D and arithmetic mean Sigma
-                is_interface = False
-                for int_x in self.interface_locations:
-                    if abs(xi - int_x) < 1e-10:
-                        is_interface = True
-                        reg_left = self.find_region_at(xi - 1e-12)
-                        reg_right = self.find_region_at(xi + 1e-12)
-                        d_arr[i] = (2.0 * reg_left.materials.D * reg_right.materials.D) / (
-                            reg_left.materials.D + reg_right.materials.D
-                        )
-                        sa_arr[i] = 0.5 * (reg_left.materials.sigma_a + reg_right.materials.sigma_a)
-                        nsf_arr[i] = 0.5 * (reg_left.materials.nu_sigma_f + reg_right.materials.nu_sigma_f)
-                        fiss_mask[i] = reg_left.is_fissionable or reg_right.is_fissionable
-                        break
-                if not is_interface:
-                    reg = self.find_region_at(xi)
-                    d_arr[i] = reg.materials.D
-                    sa_arr[i] = reg.materials.sigma_a
-                    nsf_arr[i] = reg.materials.nu_sigma_f
-                    fiss_mask[i] = reg.is_fissionable
-                continue
+                x_a, x_b = mesh.x[i] - 0.5 * dx, mesh.x[i] + 0.5 * dx
+            cv_len = x_b - x_a
 
-            d_arr[i] = reg.materials.D
-            sa_arr[i] = reg.materials.sigma_a
-            nsf_arr[i] = reg.materials.nu_sigma_f
-            fiss_mask[i] = reg.is_fissionable
+            for r in self.regions:
+                o_min = max(x_a, r.x_min)
+                o_max = min(x_b, r.x_max)
+                if o_max > o_min:
+                    frac = (o_max - o_min) / cv_len
+                    sa_arr[i] += frac * r.materials.sigma_a
+                    nsf_arr[i] += frac * r.materials.nu_sigma_f
+                    inv_d_arr[i] += frac / r.materials.D
+                    if r.is_fissionable and frac > 1e-12:
+                        fiss_mask[i] = True
 
+        d_arr = 1.0 / inv_d_arr
         return d_arr, sa_arr, nsf_arr, fiss_mask
 
 
