@@ -155,7 +155,7 @@ $\mathbf{A}$ satisfies:
 1. **Symmetry**: $\mathbf{A} = \mathbf{A}^T$.
 2. **Strict Diagonal Dominance**: $|A_{i,i}| = \frac{2D}{\Delta x^2} + \Sigma_a > \sum_{j \ne i} |A_{i,j}| = \frac{2D}{\Delta x^2}$ for $\Sigma_a > 0$.
 3. **Positive Definiteness**: All eigenvalues are strictly positive.
-4. **M-Matrix Property & Inverse Positivity**: The discretized diffusion-loss operator $\mathbf{A}$ has M-matrix properties under the stated assumptions (positive diagonal entries, non-positive off-diagonals, and strict diagonal dominance for $\Sigma_a > 0$), which support a non-negative response to a non-negative source ($\mathbf{A}^{-1} \ge 0$). Perron-Frobenius theory is relevant separately to the dominant eigenvalue/eigenvector structure of the non-negative multiplication operator $\mathbf{A}^{-1}\mathbf{F}$, guaranteeing a unique, strictly positive dominant eigenvalue ($k_{\text{eff}}$) and a non-negative fundamental eigenvector.
+4. **M-Matrix Property & Inverse Positivity**: The discretized diffusion-loss operator has M-matrix properties under the stated assumptions, supporting a non-negative response to a non-negative source. Perron-Frobenius theory is relevant separately to the dominant eigenvalue/eigenvector structure of the non-negative multiplication operator.
 
 ### The Thomas Algorithm (TDMA)
 Rather than using general matrix factorization ($\mathcal{O}(N^3)$), the tridiagonal fixed-source equation $\mathbf{A} \boldsymbol{\phi} = \mathbf{s}$ is solved using the Thomas algorithm in $\mathcal{O}(N)$ operations. Due to strict diagonal dominance, elimination without pivoting is unconditionally stable.
