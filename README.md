@@ -70,8 +70,9 @@ Below is a summary of the headline computational results produced by the framewo
 15. [CLI Usage](#14-cli-usage)
 16. [Automated Verification Test Suite](#15-automated-verification-test-suite)
 17. [Scope & Limitations](#16-scope--limitations)
-18. [Future Research Extensions](#17-future-research-extensions)
 19. [References](#18-references)
+20. [Citation](#19-citation)
+21. [License](#20-license)
 
 
 ---
@@ -663,4 +664,26 @@ Potential future directions for extending this computational laboratory include:
 4. **Bell, G. I., & Glasstone, S.** (1970). *Nuclear Reactor Theory*. Van Nostrand Reinhold.
 5. **LeVeque, R. J.** (2007). *Finite Difference Methods for Ordinary and Partial Differential Equations: Steady-State and Time-Dependent Problems*. SIAM.
 6. **Golub, G. H., & Van Loan, C. F.** (2013). *Matrix Computations* (4th ed.). Johns Hopkins University Press.
+
+---
+
+## 19. Citation
+
+If you use this simulator or benchmark data in academic research or coursework, please cite:
+
+```bibtex
+@software{neutron_diffusion_simulator_2026,
+  author = {Mohammadrezaei, Arash},
+  title = {1D Neutron Diffusion Reactor Simulator},
+  year = {2026},
+  url = {https://github.com/Arashsyberbrother/neutron-diffusion-reactor-simulator},
+  version = {0.1.0}
+}
+```
+
+---
+
+## 20. License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 

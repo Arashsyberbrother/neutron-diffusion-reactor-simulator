@@ -1,12 +1,22 @@
 cff-version: 1.2.0
 message: "If you use this software in academic research or coursework, please cite it as below."
 title: "neutron-diffusion-reactor-simulator: A Scientific 1D Neutron Diffusion Eigenvalue Solver and Reactor Physics Analysis Framework"
-authors:
-  - name: "Computational Nuclear Engineering Research"
 version: 0.1.0
 date-released: 2026-09-07
+authors:
+  - family-names: "Mohammadrezaei"
+    given-names: "Arash"
+    email: "arashrezaii28@gmail.com"
 license: MIT
 repository-code: "https://github.com/Arashsyberbrother/neutron-diffusion-reactor-simulator"
+url: "https://github.com/Arashsyberbrother/neutron-diffusion-reactor-simulator"
+abstract: >-
+  A modular, research-oriented computational reactor-physics framework solving the
+  steady-state, one-energy-group neutron diffusion eigenvalue problem for both
+  homogeneous and multi-region heterogeneous reflected reactor cores in 1D slab
+  geometry. Features conservative second-order finite-difference discretization,
+  harmonic interface diffusion coefficients, Thomas algorithm (TDMA), power
+  iteration, and numerical critical fuel sizing.
 keywords:
   - "nuclear engineering"
   - "reactor physics"
