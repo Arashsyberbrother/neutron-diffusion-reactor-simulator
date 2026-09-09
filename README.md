@@ -35,7 +35,7 @@ Below is a summary of the headline computational results produced by the framewo
 
 #### Heterogeneous Core-Reflector Flux & Power Distribution
 ![Heterogeneous Core-Reflector Flux and Power](results/figures/core_reflector_flux.png)
-*Figure 1: Numerical scalar neutron flux $\phi(x)$ (top panel) and normalized fission power density $P(x)$ (bottom panel) across the symmetric reflected core ($20\text{ cm}$ reflector, $80\text{ cm}$ fuel, $20\text{ cm}$ reflector). The non-multiplying reflectors scatter escaping neutrons back into the core, elevating peripheral flux and reducing peak-to-average core power concentration from $1.571$ to $1.225$.*
+*Figure 1: Numerical scalar neutron flux $\phi(x)$ (top panel) and normalized fission power density $P(x)$ (bottom panel) across the symmetric reflected core ($20\text{ cm}$ reflector, $80\text{ cm}$ fuel, $20\text{ cm}$ reflector). The non-multiplying reflectors reduce neutron leakage and increase the return of diffusing neutrons toward the core, elevating peripheral flux and reducing peak-to-average core power concentration from $1.571$ to $1.225$.*
 
 #### Reflector Savings: Bare vs. Reflected Reactor
 ![Bare vs Reflected Core Flux and Eigenvalues](results/figures/bare_vs_reflector_keff.png)
@@ -313,7 +313,7 @@ Building on the verified homogeneous analytical baseline, Version 2 introduces a
 
 Bare homogeneous reactors suffer from heavy neutron leakage at the periphery, which depresses reactivity, demands higher fissile fuel inventories, and creates severe spatial flux gradients with a high peak-to-average power ratio ($P_{\text{peak}}/\bar{P} \approx 1.57$).
 
-In practical reactor design, the active multiplying core is surrounded by an external **reflector**—a non-multiplying ($\nu\Sigma_f = 0$), low-absorbing, high-scattering material (e.g., light water, heavy water, graphite, or beryllium). The reflector scatters escaping neutrons back into the core, yielding two major engineering advantages:
+In practical reactor design, the active multiplying core is surrounded by an external **reflector**—a non-multiplying ($\nu\Sigma_f = 0$), low-absorbing, high-scattering material (e.g., light water, heavy water, graphite, or beryllium). The reflector reduces neutron leakage and increases the return of diffusing neutrons toward the core, yielding two major engineering advantages:
 1. **Reflector Savings ($\Delta k > 0$)**: Lowering overall net leakage increases system reactivity, allowing smaller core volumes or reduced fuel enrichment.
 2. **Flux & Power Flattening**: Raising peripheral neutron flux elevates power generation at the core edges, lowering peak-to-average power density and enhancing thermal-hydraulic margins.
 
