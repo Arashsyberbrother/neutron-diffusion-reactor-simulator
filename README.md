@@ -20,10 +20,10 @@ Below is a summary of the headline computational results produced by the framewo
 | :--- | :---: | :--- |
 | **Bare-Core Eigenvalue ($k_{\text{eff}}$)** | `1.09012419` | $80.0\text{ cm}$ active fuel core with vacuum boundary conditions ($\phi=0$) |
 | **Reflected-Core Eigenvalue ($k_{\text{eff}}$)** | `1.13653540` | Identical $80.0\text{ cm}$ core flanked symmetrically by $20.0\text{ cm}$ reflectors |
-| **Reflector Savings ($\Delta k$)** | `+0.04641121` | **$+4641.1\text{ pcm}$** reactivity gain from reflector neutron back-scattering |
+| **Reflector Savings ($\Delta k$)** | `+0.04641121` | **$+4641.1\text{ pcm}$** reactivity gain from reduced leakage and return of diffusing neutrons |
 | **Core Power Flattening** | `22.0% reduction` | Peak-to-average power ratio ($P_{\text{peak}}/\bar{P}$) drops from $1.5708$ to $1.2251$ |
 | **Critical Fuel Thickness ($T_{\text{crit}}$)** | `24.9658 cm` | Numerical root of discrete heterogeneous model with $20.0\text{ cm}$ reflectors |
-| **Criticality Verification ($k_{\text{eff}}(T_{\text{crit}})$)** | `0.99999873` | Residual $|k_{\text{eff}} - 1.0| = 1.27 \times 10^{-6}$ ($0.13\text{ pcm}$ from exact critical) |
+| **Criticality Verification ($k_{\text{eff}}(T_{\text{crit}})$)** | `0.99999873` | Residual $\lvert k_{\text{eff}} - 1.0 \rvert = 1.27 \times 10^{-6}$ ($0.13\text{ pcm}$ from exact critical) |
 | **Homogeneous Analytical Benchmark** | `1.19121585` | Closed-form exact solution: $k_{\text{eff}} = \nu\Sigma_f / (\Sigma_a + D B_g^2)$ |
 | **Homogeneous Discretization Error** | `+4.41e-06` | Numerical eigenvalue discrepancy of only **$0.44\text{ pcm}$** ($N=100$, $\Delta x = 1.0\text{ cm}$) |
 | **Spatial Convergence Order ($p$)** | `p = 2.000` | Asymptotic rate fitted over $N \in [20, 640]$ cells ($R^2 = 1.0000$, matches $\mathcal{O}(\Delta x^2)$) |
@@ -203,7 +203,7 @@ $\mathbf{A}$ satisfies:
 4. **M-Matrix Property & Inverse Positivity**: The discretized diffusion-loss operator has M-matrix properties under the stated assumptions, supporting a non-negative response to a non-negative source. Perron-Frobenius theory is relevant separately to the dominant eigenvalue/eigenvector structure of the non-negative multiplication operator.
 
 ### The Thomas Algorithm (TDMA)
-Rather than using general matrix factorization ($\mathcal{O}(N^3)$), the tridiagonal fixed-source equation $\mathbf{A} \boldsymbol{\phi} = \mathbf{s}$ is solved using the Thomas algorithm in $\mathcal{O}(N)$ operations. Due to strict diagonal dominance, elimination without pivoting is unconditionally stable.
+Rather than using general matrix factorization ($\mathcal{O}(N^3)$), the tridiagonal fixed-source equation $\mathbf{A} \boldsymbol{\phi} = \mathbf{s}$ is solved using the Thomas algorithm in $\mathcal{O}(N)$ operations. Because the discrete loss matrix $\mathbf{A}$ is symmetric, tridiagonal, and strictly diagonally dominant for $\Sigma_a > 0$, standard Gaussian elimination without pivoting (the Thomas algorithm) proceeds without breakdown or loss of precision.
 
 ---
 
@@ -335,7 +335,7 @@ $$\phi(0) = 0, \quad \phi(L_{\text{tot}}) = 0$$
 
 ### 10.3 Conservative Discretization & Harmonic Interface Diffusion Coefficients
 
-Because material properties jump discontinuously across core/reflector interfaces, classical second-order finite difference approximations fail. Instead, a conservative finite-volume-style discretization over cell control volumes $[x_{i-1/2}, x_{i+1/2}]$ is used:
+Because material properties jump discontinuously across core/reflector interfaces, a naive pointwise central-difference treatment of discontinuous diffusion coefficients is not conservative at material boundaries. Instead, a conservative control-volume finite-difference formulation over cells $[x_{i-1/2}, x_{i+1/2}]$ is used to preserve appropriate interface current and flux continuity:
 
 $$J_{i+1/2} - J_{i-1/2} + \bar{\Sigma}_{a,i} \phi_i \Delta x = \frac{1}{k_{\text{eff}}} \overline{\nu\Sigma}_{f,i} \phi_i \Delta x$$
 
@@ -347,7 +347,7 @@ $$D_{i+1/2} = \frac{2 D_i D_{i+1}}{D_i + D_{i+1}}$$
 
 This harmonic formulation enforces that series diffusive resistances add linearly across the half-cells, guaranteeing strict current conservation without numerical oscillations.
 
-The resulting matrix equation is strictly tridiagonal, symmetric, diagonally dominant, and an M-matrix, solved unconditionally stably via the Thomas algorithm (TDMA) in $\mathcal{O}(N)$ operations.
+The resulting matrix equation is strictly tridiagonal, symmetric, diagonally dominant, and an M-matrix, allowing efficient solution via the Thomas algorithm (TDMA) in $\mathcal{O}(N)$ operations without pivoting.
 
 For interface nodes located exactly on a material boundary, nodal cross sections represent the equal-volume average of adjacent half-cells:
 $$\bar{\Sigma}_{a,i} = \frac{1}{2}(\Sigma_{a,\text{left}} + \Sigma_{a,\text{right}}), \quad \overline{\nu\Sigma}_{f,i} = \frac{1}{2}(\nu\Sigma_{f,\text{left}} + \nu\Sigma_{f,\text{right}})$$
@@ -360,9 +360,9 @@ Across any physical material boundary $x_{\text{int}}$ without localized delta-f
 2. **Neutron Current Continuity**:
    $$J(x_{\text{int}}^-) = J(x_{\text{int}}^+)$$
    where with $J = -D \frac{d\phi}{dx}$:
-   $$-D_{\text{left}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^-} = -D_{\text{right}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^+}$$
+   $$-D_{\text{left}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^-} = -D_{\text{right}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^+$$
    or equivalently:
-   $$D_{\text{left}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^-} = D_{\text{right}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^+}$$
+   $$D_{\text{left}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^-} = D_{\text{right}} \left.\frac{d\phi}{dx}\right|_{x_{\text{int}}^+$$
 
 In our numerical verification, these jump conditions are evaluated with rigorous numerical tolerances:
 - $\Delta \phi_{\text{int}} = |\phi(x_{\text{int}}^+) - \phi(x_{\text{int}}^-)| \le 1.52 \times 10^{-4}$ (continuous across grid cells)
@@ -390,7 +390,7 @@ To quantify the reflector effect rigorously, a controlled comparison was execute
 | **Reflected Core** | Vacuum ($\phi=0$ at reflector edges) | $80.0$ | $120.0$ | $1.13653540$ | $0.13148$ | **$+0.04641121$ ($+4641.1\text{ pcm}$)** |
 
 #### Key Physical Observations:
-1. **Reflector Savings**: Adding a $20\text{ cm}$ reflector increases reactivity by **$+4641.1\text{ pcm}$**, turning a near-critical core into a supercritical state due to back-scattering of leakage neutrons.
+1. **Reflector Savings**: Adding a $20\text{ cm}$ reflector increases reactivity by **$+4641.1\text{ pcm}$**, turning a near-critical core into a supercritical state due to reduced net leakage and the return of diffusing neutrons.
 2. **Boundary Flux Suppression**: In the bare core, flux plunges to zero directly at the fuel edge ($x = \pm 40\text{ cm}$), causing severe neutron leakage. In the reflected core, the flux at the fuel-reflector interface remains high ($\phi_{\text{int}} \approx 0.0617$), shifting the zero boundary condition $20\text{ cm}$ further into the non-multiplying medium.
 
 ### 10.7 Core Power Flattening
@@ -449,7 +449,7 @@ This project is organized into an 8-step progressive computational research narr
 1. **Step 1: First-Principles Physics & Formulation**: Derivation of the 1D neutron diffusion eigenvalue problem from Boltzmann transport theory.
 2. **Step 2: Analytical Benchmark**: Closed-form mathematical proof of the fundamental eigenvalue $k_{\text{eff}} = \nu\Sigma_f / (\Sigma_a + D B_g^2)$ and sine eigenmode in a bare homogeneous slab.
 3. **Step 3: Conservative Operator Discretization**: Second-order finite differences and tridiagonal matrix formulation preserving positive definiteness and M-matrix stability.
-4. **Step 4: High-Performance Linear Algebra**: Unconditionally stable $\mathcal{O}(N)$ Thomas algorithm elimination replacing dense $\mathcal{O}(N^3)$ solvers.
+4. **Step 4: High-Performance Linear Algebra**: $\mathcal{O}(N)$ Thomas algorithm elimination for the strictly diagonally dominant tridiagonal system, replacing general matrix inversion.
 5. **Step 5: Outer Power Iteration & Spectral Analysis**: Dominance-ratio-governed convergence of the fission source and eigenvalue.
 6. **Step 6: Rigorous Mesh Refinement Verification**: Empirical confirmation of asymptotic second-order spatial convergence ($p = 2.000$).
 7. **Step 7: Version 2 Multi-Region Heterogeneous Extension**: Conservative interface finite volumes with harmonic diffusion coefficients ($D_{i+1/2}$) and discrete flux/current continuity verification.

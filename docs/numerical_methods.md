@@ -55,7 +55,7 @@ At each step of the iterative eigenvalue solver, we solve a fixed-source diffusi
 
 $$\mathbf{A} \boldsymbol{\phi} = \mathbf{s}$$
 
-Because $\mathbf{A}$ is tridiagonal and strictly diagonally dominant, Gaussian elimination without pivoting is unconditionally stable and requires only $\mathcal{O}(N)$ operations.
+Because $\mathbf{A}$ is tridiagonal and strictly diagonally dominant (for $\Sigma_a > 0$), Gaussian elimination without pivoting (the Thomas algorithm) does not encounter zero pivots and solves the system efficiently in $\mathcal{O}(N)$ operations.
 
 Let the tridiagonal system be expressed as:
 
@@ -130,7 +130,7 @@ In multi-region heterogeneous reactors (e.g., fuel core surrounded by a non-mult
 
 $$-\frac{d}{dx}\left(D(x) \frac{d\phi}{dx}\right) + \Sigma_a(x)\phi(x) = \frac{1}{k_{\text{eff}}} \nu\Sigma_f(x)\phi(x)$$
 
-Standard point-wise finite differencing fails across material discontinuities because $D(x)$ is not differentiable at interfaces. Instead, a conservative cell-centered / control-volume finite-difference discretization is required.
+A naive pointwise central-difference treatment of discontinuous diffusion coefficients is not conservative across material boundaries where $D(x)$ jumps. Instead, a conservative control-volume finite-difference discretization is employed to rigorously maintain neutron current and flux continuity.
 
 ### 5.1 Control Volume Balance and Interface Currents
 
